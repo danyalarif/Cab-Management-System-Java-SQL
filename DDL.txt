@@ -1,0 +1,395 @@
+
+
+CREATE TABLE admin (
+    username VARCHAR2(20) NOT NULL,
+    password VARCHAR2(50) NOT NULL
+);
+
+ALTER TABLE admin ADD CONSTRAINT admin_pk PRIMARY KEY ( username );
+
+CREATE TABLE avaliablecar (
+    carid        INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    price        FLOAT(2) NOT NULL,
+    dateexported DATE
+);
+
+ALTER TABLE avaliablecar ADD CONSTRAINT avaliablecar_pk PRIMARY KEY ( carid );
+
+CREATE TABLE booking (
+    bookingid     INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    details       VARCHAR2(200),
+    createddate   DATE,
+    createdtime   VARCHAR2(10),
+    accepted      CHAR(1),
+    customerid    INTEGER NOT NULL,
+    driverid      INTEGER,
+    sourceid      INTEGER NOT NULL,
+    destinationid INTEGER NOT NULL,
+    completed     CHAR(1)
+);
+
+ALTER TABLE booking ADD CONSTRAINT booking_pk PRIMARY KEY ( bookingid );
+
+CREATE TABLE car (
+    carid   INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    carname VARCHAR2(50) NOT NULL,
+    plateno VARCHAR2(20),
+    color   VARCHAR2(20),
+    speed   INTEGER NOT NULL,
+    seats   INTEGER,
+    type    VARCHAR2(50)
+);
+
+ALTER TABLE car ADD CONSTRAINT car_pk PRIMARY KEY ( carid );
+
+CREATE TABLE customer (
+    personid INTEGER NOT NULL,
+    weight   INTEGER NOT NULL,
+    height   INTEGER
+);
+
+ALTER TABLE customer ADD CONSTRAINT customer_pk PRIMARY KEY ( personid );
+
+CREATE TABLE discount (
+    discountid INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    amount     FLOAT(2) NOT NULL,
+    givendate  DATE,
+    customerid INTEGER NOT NULL,
+    percentage INTEGER
+);
+
+ALTER TABLE discount ADD CONSTRAINT discount_pk PRIMARY KEY ( discountid );
+
+CREATE TABLE driver (
+    personid    INTEGER NOT NULL,
+    experience  INTEGER,
+    salary      INTEGER NOT NULL,
+    description VARCHAR2(500) NOT NULL,
+    haslicense  CHAR(1)
+);
+
+ALTER TABLE driver ADD CONSTRAINT driver_pk PRIMARY KEY ( personid );
+
+CREATE TABLE language (
+    languageid INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    personid   INTEGER NOT NULL,
+    language   VARCHAR2(20)
+);
+
+ALTER TABLE language ADD CONSTRAINT language_pk PRIMARY KEY ( languageid );
+
+CREATE TABLE location (
+    locationid INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    city       VARCHAR2(30),
+    province   VARCHAR2(20)
+);
+
+ALTER TABLE location ADD CONSTRAINT location_pk PRIMARY KEY ( locationid );
+
+CREATE TABLE message (
+    messageid  INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    driverid   INTEGER NOT NULL,
+    customerid INTEGER NOT NULL,
+    text       VARCHAR2(1000) NOT NULL,
+    sentdate   DATE,
+    senttime   VARCHAR2(10),
+    sender     VARCHAR2(10) NOT NULL
+);
+
+ALTER TABLE message ADD CONSTRAINT message_pk PRIMARY KEY ( messageid );
+
+CREATE TABLE ownedcar (
+    carid      INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    boughtdate DATE,
+    health     INTEGER,
+    driverid   INTEGER NOT NULL
+);
+
+ALTER TABLE ownedcar ADD CONSTRAINT ownedcar_pk PRIMARY KEY ( carid );
+
+CREATE TABLE payment (
+    paymentid         INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    amount            FLOAT(2) NOT NULL,
+    paymentdate       DATE,
+    paymenttime       VARCHAR2(10),
+    customer_personid INTEGER NOT NULL,
+    method            VARCHAR2(25) NOT NULL
+);
+
+ALTER TABLE payment ADD CONSTRAINT payment_pk PRIMARY KEY ( paymentid );
+
+CREATE TABLE person (
+    personid   INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    username   VARCHAR2(30) NOT NULL,
+    password   VARCHAR2(50) NOT NULL,
+    firstname  VARCHAR2(30),
+    lastname   VARCHAR2(30),
+    joineddate DATE,
+    balance    FLOAT(2),
+    city       VARCHAR2(30),
+    type       VARCHAR2(50)
+);
+
+ALTER TABLE person ADD CONSTRAINT person_pk PRIMARY KEY ( personid );
+
+CREATE TABLE review (
+    reviewid   INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    stars      INTEGER NOT NULL,
+    "comment"  VARCHAR2(200),
+    reviewdate DATE,
+    customerid INTEGER NOT NULL
+);
+
+ALTER TABLE review ADD CONSTRAINT review_pk PRIMARY KEY ( reviewid );
+
+CREATE TABLE ride (
+    rideid        INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    details       VARCHAR2(200),
+    completeddate DATE,
+    completedtime VARCHAR2(10),
+    paymentid     INTEGER NOT NULL
+);
+
+ALTER TABLE ride ADD CONSTRAINT ride_pk PRIMARY KEY ( rideid );
+
+CREATE TABLE service (
+    serviceid   INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    cost        FLOAT(2) NOT NULL,
+    city        VARCHAR2(40),
+    companyname VARCHAR2(4000) NOT NULL,
+    carid       INTEGER NOT NULL
+);
+
+ALTER TABLE service ADD CONSTRAINT service_pk PRIMARY KEY ( serviceid );
+
+CREATE TABLE skill (
+    skillid   INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    driverid  INTEGER NOT NULL,
+    skillname VARCHAR2(4000)
+);
+
+ALTER TABLE skill ADD CONSTRAINT skill_pk PRIMARY KEY ( skillid );
+
+CREATE TABLE tip (
+    tipid      INTEGER GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1) NOT NULL,
+    driverid   INTEGER NOT NULL,
+    customerid INTEGER NOT NULL,
+    tipdate    DATE,
+    amount     FLOAT
+);
+
+ALTER TABLE tip ADD CONSTRAINT tip_pk PRIMARY KEY ( tipid );
+
+ALTER TABLE avaliablecar
+    ADD CONSTRAINT avaliablecar_car_fk FOREIGN KEY ( carid )
+        REFERENCES car ( carid );
+
+ALTER TABLE booking
+    ADD CONSTRAINT booking_customer_fk FOREIGN KEY ( customerid )
+        REFERENCES customer ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE booking
+    ADD CONSTRAINT booking_driver_fk FOREIGN KEY ( driverid )
+        REFERENCES driver ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE booking
+    ADD CONSTRAINT booking_location_fk FOREIGN KEY ( sourceid )
+        REFERENCES location ( locationid )
+            ON DELETE CASCADE;
+
+ALTER TABLE booking
+    ADD CONSTRAINT booking_location_fkv2 FOREIGN KEY ( destinationid )
+        REFERENCES location ( locationid )
+            ON DELETE CASCADE;
+
+ALTER TABLE customer
+    ADD CONSTRAINT customer_person_fk FOREIGN KEY ( personid )
+        REFERENCES person ( personid )
+	ON DELETE CASCADE;
+
+ALTER TABLE driver
+    ADD CONSTRAINT driver_person_fk FOREIGN KEY ( personid )
+        REFERENCES person ( personid )
+	ON DELETE CASCADE;
+
+ALTER TABLE discount
+    ADD CONSTRAINT discount_customer_fk FOREIGN KEY ( customerid )
+        REFERENCES customer ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE language
+    ADD CONSTRAINT language_person_fk FOREIGN KEY ( personid )
+        REFERENCES person ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE message
+    ADD CONSTRAINT message_customer_fk FOREIGN KEY ( customerid )
+        REFERENCES customer ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE message
+    ADD CONSTRAINT message_driver_fk FOREIGN KEY ( driverid )
+        REFERENCES driver ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE ownedcar
+    ADD CONSTRAINT ownedcar_car_fk FOREIGN KEY ( carid )
+        REFERENCES car ( carid );
+
+ALTER TABLE ownedcar
+    ADD CONSTRAINT ownedcar_driver_fk FOREIGN KEY ( driverid )
+        REFERENCES driver ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE payment
+    ADD CONSTRAINT payment_customer_fk FOREIGN KEY ( customer_personid )
+        REFERENCES customer ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE review
+    ADD CONSTRAINT review_customer_fk FOREIGN KEY ( customerid )
+        REFERENCES customer ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE ride
+    ADD CONSTRAINT ride_payment_fk FOREIGN KEY ( paymentid )
+        REFERENCES payment ( paymentid )
+            ON DELETE CASCADE;
+
+ALTER TABLE service
+    ADD CONSTRAINT service_ownedcar_fk FOREIGN KEY ( carid )
+        REFERENCES ownedcar ( carid )
+            ON DELETE CASCADE;
+
+ALTER TABLE skill
+    ADD CONSTRAINT skill_driver_fk FOREIGN KEY ( driverid )
+        REFERENCES driver ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE tip
+    ADD CONSTRAINT tip_customer_fk FOREIGN KEY ( customerid )
+        REFERENCES customer ( personid )
+            ON DELETE CASCADE;
+
+ALTER TABLE tip
+    ADD CONSTRAINT tip_driver_fk FOREIGN KEY ( driverid )
+        REFERENCES driver ( personid )
+            ON DELETE CASCADE;
+
+CREATE OR REPLACE TRIGGER arc_fkarc_10_customer BEFORE
+    INSERT OR UPDATE OF personid ON customer
+    FOR EACH ROW
+DECLARE
+    d VARCHAR2(50);
+BEGIN
+    SELECT
+        a.type
+    INTO d
+    FROM
+        person a
+    WHERE
+        a.personid = :new.personid;
+
+    IF ( d IS NULL OR d <> 'customer' ) THEN
+        raise_application_error(-20223, 'FK Customer_Person_FK in Table Customer violates Arc constraint on Table Person - discriminator column type doesn''t have value ''customer''');
+    END IF;
+
+EXCEPTION
+    WHEN no_data_found THEN
+        NULL;
+    WHEN OTHERS THEN
+        RAISE;
+END;
+/
+
+CREATE OR REPLACE TRIGGER arc_fkarc_10_driver BEFORE
+    INSERT OR UPDATE OF personid ON driver
+    FOR EACH ROW
+DECLARE
+    d VARCHAR2(50);
+BEGIN
+    SELECT
+        a.type
+    INTO d
+    FROM
+        person a
+    WHERE
+        a.personid = :new.personid;
+
+    IF ( d IS NULL OR d <> 'driver' ) THEN
+        raise_application_error(-20223, 'FK Driver_Person_FK in Table Driver violates Arc constraint on Table Person - discriminator column type doesn''t have value ''driver''');
+    END IF;
+
+EXCEPTION
+    WHEN no_data_found THEN
+        NULL;
+    WHEN OTHERS THEN
+        RAISE;
+END;
+/
+
+CREATE OR REPLACE TRIGGER arc_fkarc_9_ownedcar BEFORE
+    INSERT OR UPDATE OF carid ON ownedcar
+    FOR EACH ROW
+DECLARE
+    d VARCHAR2(50);
+BEGIN
+    SELECT
+        a.type
+    INTO d
+    FROM
+        car a
+    WHERE
+        a.carid = :new.carid;
+
+    IF ( d IS NULL OR d <> 'owned' ) THEN
+        raise_application_error(-20223, 'FK OwnedCar_Car_FK in Table OwnedCar violates Arc constraint on Table Car - discriminator column type doesn''t have value ''owned''');
+    END IF;
+
+EXCEPTION
+    WHEN no_data_found THEN
+        NULL;
+    WHEN OTHERS THEN
+        RAISE;
+END;
+/
+
+CREATE OR REPLACE TRIGGER arc_fkarc_9_avaliablecar BEFORE
+    INSERT OR UPDATE OF carid ON avaliablecar
+    FOR EACH ROW
+DECLARE
+    d VARCHAR2(50);
+BEGIN
+    SELECT
+        a.type
+    INTO d
+    FROM
+        car a
+    WHERE
+        a.carid = :new.carid;
+
+    IF ( d IS NULL OR d <> 'avaliable' ) THEN
+        raise_application_error(-20223, 'FK AvaliableCar_Car_FK in Table AvaliableCar violates Arc constraint on Table Car - discriminator column type doesn''t have value ''avaliable''');
+    END IF;
+
+EXCEPTION
+    WHEN no_data_found THEN
+        NULL;
+    WHEN OTHERS THEN
+        RAISE;
+END;
+/
+
+
+insert into Location (city, province) values ('Islamabad', 'Punjab');
+insert into Location (city, province) values ('Lahore', 'Punjab');
+insert into Location (city, province) values ('Jhelum', 'Punjab');
+insert into Location (city, province) values ('Rawalpindi', 'Punjab');
+insert into Location (city, province) values ('Multan', 'Punjab');
+insert into Location (city, province) values ('Sargodha', 'Punjab');
+insert into Location (city, province) values ('Karachi', 'Sindh');
+insert into Location (city, province) values ('Larkana', 'Sindh');
+insert into Location (city, province) values ('Abbottabad', 'KPK');
+insert into Location (city, province) values ('Peshawar', 'KPK');
